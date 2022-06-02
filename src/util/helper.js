@@ -3,7 +3,7 @@ const printDate = function(){
     console.log("DAY :" +today.getDate())
 }
 const printMonth=function(){
-    console.log("MONTH :" + today.getMonth())
+    console.log("MONTH :" + (today.getMonth() + 1))
 }
 const getBatchInfo=function(){
     console.log("Radon, W2D2, the topic for today is Nodejs module system")
