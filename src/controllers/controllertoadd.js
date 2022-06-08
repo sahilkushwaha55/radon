@@ -64,8 +64,34 @@ const inRange = async function (req, res){
 
 
 
+
+//========================author older than 50 year===========================
+
+
+const oldauthor = async function(req,res){
+    let scdata = await authorSchema.find( {age : {$gt : 50}}).select({author_id : 1, author_name : 1, age : 1, _id: 0})
+    let arry=[]
+    let nameof=[]
+    for (let i =0;i<scdata.length;i++){
+        let try1 = undefined
+        try1= await bookschema.findOne({$and : [ {author_id : scdata[i].author_id}, {ratings : {$gt : 4.0}}]}).select({author_id:1, _id:0})
+        if(try1)
+        arry.push(try1)
+    }
+    for ( let i=0;i<scdata.length;i++){
+        for(let j=i;j<arry.length;j++){
+            if (scdata[i].author_id==arry[j].author_id)
+            nameof.push(scdata[i])
+        }
+    }
+    res.send(nameof)
+}
+
+
+
 module.exports.authordetail=authordetail
 module.exports.bookdetail=bookdetail
 module.exports.findauthor = findauthor
 module.exports.updateprice = updateprice
 module.exports.inRange = inRange
+module.exports.oldauthor = oldauthor
