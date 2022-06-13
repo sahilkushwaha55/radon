@@ -18,7 +18,7 @@ router.post('/createproduct', productcontroller.createProduct)
 
 router.post('/createuser', createUser.usercreate)
 
-router.post('/createorder', MRC.orderHead, MRC.usercheck, MRC.productcheck, ordercontroller.createorder)
+router.post('/createorder', MRC.orderHead, MRC.usercheck, MRC.productcheck, ordercontroller.orderdetails)
 
 
 

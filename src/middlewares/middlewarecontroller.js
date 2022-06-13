@@ -1,5 +1,6 @@
 const createuser = require('../models/user')
 const produc = require('../models/product')
+const orderModel = require('../models/orderModel')
 
 
 const orderHead = function(req,res,next){
@@ -42,20 +43,37 @@ const userHead = function(req,res,next){
 
 
 
-const orderdetails = async function(req,res,next){
-    const headData = req.headers.isfreeappuser
-    if (headData){
-        if(headData==true)
-        {
-            const scdata=req.body
-            const mydata = await createuser.
-        }
-    }
-    else
-    {
-        res.send('isFreeAppUser request is missing a mandatory header')
-    }
-}
+// const orderdetails = async function(req,res,next){
+//     const headData = req.headers.isfreeappuser
+//     if (headData){
+//         const scdata=req.body
+//         scdata.isfreeappuser= headData
+//         if(headData==true)
+//         {
+//             scdata.amount = 0
+//             const mydata = await orderModel.create(scdata)
+//             res.send(mydata)
+//         }
+//         else
+//         {
+//             const checkuser = await createuser.findById( { _id : scdata.userId})
+//             const checkproduct = await produc.findById( { _id : scdata.userId})
+//             scdata.amount = checkproduct.price
+//             const value = checkuser.balance - scdata.amount
+//             if(value > 0){
+//                 const mydata = await orderModel.create(scdata)
+//                 res.send(scdata)
+//             }
+//             else{
+//                 res.send('do not have sufficent money')
+//             }
+//         }
+//     }
+//     else
+//     {
+//         res.send('isFreeAppUser request is missing a mandatory header')
+//     }
+// }
 
 
 module.exports.orderHead = orderHead
