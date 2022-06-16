@@ -1,12 +1,23 @@
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/userModel");
 
+
 const createUser = async function (abcd, xyz) {
+  try{
   let data = abcd.body;
+  if( Object.keys(data).length !=0){
   let savedData = await userModel.create(data);
-  console.log(abcd.newAtribute);
-  xyz.send({ msg: savedData });
+  xyz.status(201).send({ msg: savedData });
+  }
+  else xyz.status(400).send({msg : "BAD REQUEST"})
+  }
+  catch (error){
+    console.log('This is the error : ', error.message)
+    xyz.status(500).send({msg : "Error", error : error.message})
+  }
 };
+
+
 
 const loginUser = async function (req, res) {
   let userName = req.body.emailId;
@@ -14,7 +25,7 @@ const loginUser = async function (req, res) {
 
   let user = await userModel.findOne({ emailId: userName, password: password });
   if (!user)
-    return res.send({
+    return res.status(401).send({
       status: false,
       msg: "username or the password is not corerct",
     });
@@ -37,7 +48,6 @@ const getUserData = async function (req, res) {
 
     let userId = req.params.userId;
     let userDetails = await userModel.findById(userId);
-
     res.send({ status: true, data: userDetails });
 };
 
@@ -46,11 +56,12 @@ const getUserData = async function (req, res) {
 const updateUser = async function (req, res) {
 
   let userId = req.params.userId;
-  
   let userData = req.body;
   let updatedUser = await userModel.findOneAndUpdate({ _id: userId }, userData);
   res.send({ status: updatedUser, data: updatedUser });
 };
+
+
 
 const postMessage = async function (req, res) {
     let message = req.body.message
@@ -67,8 +78,8 @@ const postMessage = async function (req, res) {
 }
 
 
-const deleteUser = async function(req,res){
 
+const deleteUser = async function(req,res){
   let scdata = req.params.userId
   let searchdata = await userModel.findOneAndUpdate({_id : scdata},{isDeleted : true}, {new : true})
   res.send ({status: true, data: searchdata})
