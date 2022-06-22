@@ -10,7 +10,7 @@ const createBlog = async function(req,res){
     res.status(201).send({status : true, data : bodyData})
     }
     catch(err){
-        res.status(400).send({status : false, msg: err.message})
+        res.status(500).send({status : false, msg: err.message})
     }
 }
 
@@ -18,14 +18,9 @@ const createBlog = async function(req,res){
 
 const getBlogDetail = async function(req,res){
     try{
-        const authorId =req.query.authorId
-        const category = req.query.category
-        const tags = req.query.tags
-        const subcategory = req.query.subcategory
-        const data = await blogModel.find({$and : [ { isPublished : true}, {$or :[{authorId : authorId}, {category : category}, {tags : tags}, {subcategory : subcategory}, {isDeleted : false}]}]})
+        let querydata = req.query
+        const data = await blogModel.find({$and : [ { isPublished : true, isDeleted : false, ...querydata}]})
         if(!data) return res.status(404).send({status : false, msg : "No data found"})
-        //const finalData = await blogModel.find({ $or :[{authorId : authorId}, {category : category}, {tags : tags}, {subcategory : subcategory}]}, {isDeleted : false},{ isPublished : true} )
-        //if(finalData) return res.status(200).send({status : true, msg : finalData})
         res.status(200).send({status : true, msg : data})
     }
     catch(err){
@@ -44,7 +39,7 @@ const deleteBlog = async function(req,res){
             {$set : {isDeleted : true}},
             {new : true}
         )
-        res.send({msg : data})
+        res.send({msg : "Blog deleted"})
     }
     catch(err){
         res.send({msg : err.message})

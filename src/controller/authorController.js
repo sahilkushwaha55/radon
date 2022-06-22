@@ -4,6 +4,7 @@ const authorModel = require('../models/authorModel')
 const authorCreate = async function(req,res){
     try{
     const bodyData = req.body
+    if(!bodyData) return res.status.send()
     const email = req.body.email
     function validateEmail(email1) 
     {
