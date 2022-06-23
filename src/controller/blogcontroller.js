@@ -1,13 +1,20 @@
 const blogModel = require('../models/blogModel')
 const authorModel = require('../models/authorModel')
+const jwt = require('jsonwebtoken')
 
 const createBlog = async function(req,res){
     try{
     const bodyData = req.body
-    const authordetails = await authorModel.findById(req.body.authorId)
-    if(!authordetails) return res.status(400).send({status : false, msg : 'not a valid author'})
-    const saveData = await blogModel.create(bodyData)
-    res.status(201).send({status : true, data : bodyData})
+    let token = req.headers["x-Auth-token"]
+    if(!token) token = req.headers["x-auth-token"]
+    let decodeToken = jwt.verify(token,"this is my secret key")
+//Edge Cases
+    if(!req.body.title) return res.status(400).send("Please enter Title")
+    if(!req.body.body) return res.status(400).send("Please enter Blog body")
+    if(!req.body.category) return res.status(400).send("Please enter Blog category")
+
+    const saveData = await blogModel.create({authorId : decodeToken.author_Id, ...bodyData})
+    res.status(201).send({status : true, data : saveData})
     }
     catch(err){
         res.status(500).send({status : false, msg: err.message})
@@ -32,17 +39,19 @@ const getBlogDetail = async function(req,res){
 const deleteBlog = async function(req,res){
     try{
         const blogId = req.params.blogId
+        console.log(blogId)
         const checkBlog = await blogModel.findById(blogId)
-        if(!checkBlog) return res.send('No such blog')
+        if(!checkBlog) return res.status(404).send('No such blog')
+        if(checkBlog.isDeleted==true) return res.status(400).send({status : false, msg : "No such blog available to delete"})
         const data = await blogModel.findOneAndUpdate(
             {_id : blogId},
             {$set : {isDeleted : true}},
             {new : true}
         )
-        res.send({msg : "Blog deleted"})
+        res.status(200).send({status: true, msg : "Blog deleted"})
     }
     catch(err){
-        res.send({msg : err.message})
+        res.status(500).send({msg : err.message})
     }
 }
 
@@ -50,14 +59,13 @@ const deleteBlog = async function(req,res){
 
 const UpdateBlog = async function(req,res){
     try{
-    const title =req.body.title
-    const body = req.body.body
-    const tags = req.body.tags
-    const subcategory = req.body.subcategory
-    const publishedAt = req.body.publishedAt
+    const data = req.body
+    if(!data) return res.status(400).send({status : false, msg : "Please enter data"})
+    let {title,body,tags,subcategory,publishedAt} = data
     const blogId = req.params.blogId
     const updateData = await blogModel.findById(blogId)
-    if(updateData.isDeleted == true) return res.send({msg : "blog doesn't exist"})
+console.log(data)
+    if(updateData.isDeleted == true) return res.status(404).send({status : false, msg : "blog doesn't exist"})
     if(tags) updateData.tags.push(tags)
     if(subcategory) updateData.subcategory.push(subcategory)
     if(publishedAt){
