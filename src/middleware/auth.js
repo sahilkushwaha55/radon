@@ -1,5 +1,14 @@
 const jwt = require('jsonwebtoken')
 const blogModel = require('../models/blogModel')
+const mongoose = require('mongoose')
+const ObjectId = mongoose.Schema.Types.ObjectId
+
+
+const isValidObjectId=function(objectId){
+    return mongoose.Types.ObjectId.isValid(objectId)
+}
+
+
 
 const authenicate = async function(req,res,next){
     try{
@@ -23,6 +32,8 @@ const authorisation = async function(req,res,next){
         let token = req.headers["x-Auth-token"]
         if(!token) token = req.headers["x-auth-token"]
         let blogId = req.params.blogId
+        let check = isValidObjectId(blogId)
+        if(!check) return res.status(404).send({status: false, msg : "Not a valid blog"})
         let blogDetail =await blogModel.findById(blogId)
         let decodeToken = jwt.verify(token,"this is my secret key")
 

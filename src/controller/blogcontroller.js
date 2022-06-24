@@ -1,6 +1,22 @@
 const blogModel = require('../models/blogModel')
 const authorModel = require('../models/authorModel')
 const jwt = require('jsonwebtoken')
+const mongoose = require('mongoose')
+const ObjectId = mongoose.Schema.Types.ObjectId
+
+
+const isValid = function (value) {
+    if (typeof value === "undefined" || value === null) return false
+    if (typeof value === "string" && value.trim().length === 0) return false
+    if (typeof value === Number && value.trim().length === 0) return false
+    return true
+}
+
+
+const isValidObjectId=function(objectId){
+    return mongoose.Types.ObjectId.isValid(objectId)
+}
+
 
 const createBlog = async function(req,res){
     try{
@@ -9,9 +25,9 @@ const createBlog = async function(req,res){
     if(!token) token = req.headers["x-auth-token"]
     let decodeToken = jwt.verify(token,"this is my secret key")
 //Edge Cases
-    if(!req.body.title) return res.status(400).send("Please enter Title")
-    if(!req.body.body) return res.status(400).send("Please enter Blog body")
-    if(!req.body.category) return res.status(400).send("Please enter Blog category")
+    if(!isValid(req.body.title)) return res.status(400).send("Please enter Title")
+    if(!isValid(req.body.body)) return res.status(400).send("Please enter Blog body")
+    if(!isValid(req.body.category)) return res.status(400).send("Please enter Blog category")
 
     const saveData = await blogModel.create({authorId : decodeToken.author_Id, ...bodyData})
     res.status(201).send({status : true, data : saveData})
@@ -26,8 +42,10 @@ const createBlog = async function(req,res){
 const getBlogDetail = async function(req,res){
     try{
         let querydata = req.query
+        let authorId = isValidObjectId(req.query.authorId)
+        if(!authorId) return res.status(400).send({status : false, msg : "Please enter a valid author Id"})
         const data = await blogModel.find({$and : [ { isPublished : true, isDeleted : false, ...querydata}]})
-        if(!data) return res.status(404).send({status : false, msg : "No data found"})
+        if(data.length==0) return res.status(404).send({status : false, msg : "No data found"})
         res.status(200).send({status : true, msg : data})
     }
     catch(err){
@@ -39,9 +57,8 @@ const getBlogDetail = async function(req,res){
 const deleteBlog = async function(req,res){
     try{
         const blogId = req.params.blogId
-        console.log(blogId)
         const checkBlog = await blogModel.findById(blogId)
-        if(!checkBlog) return res.status(404).send('No such blog')
+        if(!checkBlog) return res.status(404).send({status : false, msg : 'No such blog'})
         if(checkBlog.isDeleted==true) return res.status(400).send({status : false, msg : "No such blog available to delete"})
         const data = await blogModel.findOneAndUpdate(
             {_id : blogId},
@@ -62,9 +79,14 @@ const UpdateBlog = async function(req,res){
     const data = req.body
     if(!data) return res.status(400).send({status : false, msg : "Please enter data"})
     let {title,body,tags,subcategory,publishedAt} = data
+    // if(!isValid(title)|| !isValid(publishedAt)|| !isValid(tags)|| !isValid(subcategory)|| !isValid(body)) 
+    // return res.status(400).send("Your can't save blank space data")
+    // if(!isValid(body)) return res.status(400).send("Please enter Blog body")
+    // if(!isValid(subcategory)) return res.status(400).send("Please enter Blog subcategory")
+    // if(!isValid(tags)) return res.status(400).send("Please enter tags")
+    // if(!isValid(publishedAt)) return res.status(400).send("Please enter publishedAt")
     const blogId = req.params.blogId
     const updateData = await blogModel.findById(blogId)
-console.log(data)
     if(updateData.isDeleted == true) return res.status(404).send({status : false, msg : "blog doesn't exist"})
     if(tags) updateData.tags.push(tags)
     if(subcategory) updateData.subcategory.push(subcategory)
@@ -93,20 +115,25 @@ console.log(data)
 const deletequery = async function(req,res){
     try{
     //const blogId = req.params.blogId
-    const authorId =req.query.authorId
-    const category = req.query.category
-    const tags = req.query.tags
-    const subcategory = req.query.subcategory
-    const isPublished = req.query.isPublished
+    // const authorId =req.query.authorId
+    // const category = req.query.category
+    // const tags = req.query.tags
+    // const subcategory = req.query.subcategory
+    // const isPublished = req.query.isPublished
     // const blog = await blogModel.findById(blogId)
     // if(!blog) return res.send('no such blog')
+    const data =req.query
+    if(Object.keys(data).length==0) return res.status(400).send({status : false, msg : "Please enter any key"})
+    let token = req.headers["x-Auth-token"]
+    if(!token) token = req.headers["x-auth-token"]
+    let decodeToken = jwt.verify(token,"this is my secret key")
     const finalData = await blogModel.updateMany(
-        { $or :[{authorId : authorId}, {category : category}, {tags : tags}, {subcategory : subcategory},{isPublished : isPublished}]},
+        { authorId : decodeToken.author_Id, ...data},
         {$set : {isDeleted : true}},
         {new : true}
         )
         if(finalData.modifiedCount == 0) return res.status(404).send({status : false, msg : 'No such blog available'})
-        res.send({msg : finalData})
+        res.status(200).send({msg : finalData})
     }
     catch(err){
         res.send({msg : err.message})
