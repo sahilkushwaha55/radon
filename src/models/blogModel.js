@@ -11,7 +11,7 @@ const blogSchema = new mongoose.Schema({
         required : true
     },
     authorId : {
-        type : ObjectId,
+        type : ObjectId,  //ObjectId taking reference of author collection Id (linking two document)
         ref : 'author',
         required : true
     },
@@ -31,6 +31,6 @@ const blogSchema = new mongoose.Schema({
         type : Boolean,
         default : false
     }
-}, {timestamps : true})
+}, {timestamps : true})  //It saves the time of creating document and updating time in the document 
 
 module.exports = mongoose.model('blog',blogSchema)
