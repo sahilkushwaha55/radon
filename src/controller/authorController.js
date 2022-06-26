@@ -21,6 +21,11 @@ const isValid = function (value) {
 const authorCreate = async function(req,res){
     try{
     const bodyData = req.body
+    const fname = req.body.fname
+    const lname = req.body.lname
+    const email = req.body.email
+    let pass = req.body.password
+    let title = ['Mr','Mrs','Miss']
     // A Fuction with regex to check the password have in right formate ex Sahil@123 
     //[ Minimum eight characters, at least one letter, one number and one special character ]
     function validatepassword(pass) 
@@ -41,17 +46,22 @@ const authorCreate = async function(req,res){
 
     //Edge cases
     if(!bodyData) return res.status(400).send({status : false, msg : "Please enter data"})
-    const email = req.body.email
-    let pass = req.body.password
-    let title = ['Mr','Mrs','Miss']
-    let pass2 = validatepassword(pass)
-    let fname = validateName(req.body.fname)
-    let lname = validateName(req.body.lname)
     if(!isValid(fname)) return res.status(400).send({status : false, msg : "Please enter First Name"})
     if(!isValid(lname)) return res.status(400).send({status : false, msg : "Please enter Last Name"})
     if(title.indexOf(req.body.title)== -1) return res.status(400).send({status : false, msg : "Please enter title [Mr, Mrs or Miss]"})
     if(!isValid(email)) return res.status(400).send({status : false, msg : "Email Id Required"})
-    if(!isValid(pass2)) return res.status(400).send({status : false, msg : "Please enter a Password"})
+    if(!isValid(pass)) return res.status(400).send({status : false, msg : "Please enter a Password"})
+    // const email = req.body.email
+    // let pass = req.body.password
+    // let title = ['Mr','Mrs','Miss']
+    validatepassword(pass)
+    validateName(req.body.fname)
+    validateName(req.body.lname)
+    // if(!isValid(fname)) return res.status(400).send({status : false, msg : "Please enter First Name"})
+    // if(!isValid(lname)) return res.status(400).send({status : false, msg : "Please enter Last Name"})
+    // if(title.indexOf(req.body.title)== -1) return res.status(400).send({status : false, msg : "Please enter title [Mr, Mrs or Miss]"})
+    // if(!isValid(email)) return res.status(400).send({status : false, msg : "Email Id Required"})
+    //if(!isValid(pass2)) return res.status(400).send({status : false, msg : "Please enter a Password"})
 
     // A Function with regex to valid that email have in the right formate
     function validateEmail(email1) 
@@ -60,7 +70,7 @@ const authorCreate = async function(req,res){
         return re.test(email1)
     }
     
-    
+
     const emailcheck = validateEmail(email)
     if(!emailcheck) return res.status(400).send({status: false, msg : 'not a valid email'})
     const checkemail2 = await authorModel.find({email : email})  // Checking email is new or has already register with any author

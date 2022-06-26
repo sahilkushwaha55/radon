@@ -15,8 +15,8 @@ const isValidObjectId=function(objectId){
 
 const authenicate = async function(req,res,next){
     try{
-    let token = req.headers["x-Auth-token"]
-    if(!token) token = req.headers["x-auth-token"]
+    let token = req.headers["x-Api-key"]
+    if(!token) token = req.headers["x-api-key"]
     if(!token) return res.status(401).send({status : false, msg : "You are not logged in(token Missing)"})
 
     let decodeToken = jwt.verify(token, "this is my secret key")
@@ -43,7 +43,7 @@ const authorisation = async function(req,res,next){
         // let decodeToken = jwt.verify(token,"this is my secret key")
 
         if(blogDetail.authorId != req.author_Id) 
-        return res.status(403).send({status : true, msg : "You are not authorised"})
+        return res.status(403).send({status : false, msg : "You are not authorised"})
         next()
     }
     catch(err){

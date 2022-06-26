@@ -74,12 +74,13 @@ const getBlogDetail = async function(req,res){
 const deleteBlog = async function(req,res){
     try{
         const blogId = req.params.blogId
+        let datetime = new Date()
         const checkBlog = await blogModel.findOne({_id : blogId, isDeleted : false})
         if(!checkBlog) return res.status(404).send({status : false, msg : 'No such blog'})
         if(checkBlog.isDeleted==true) return res.status(400).send({status : false, msg : "No such blog available to delete"})
         const data = await blogModel.findOneAndUpdate(
             {_id : blogId},
-            {$set : {isDeleted : true}},
+            {$set : {isDeleted : true , deletedAt : datetime}},
             {new : true}
         )
         res.status(200).send({status: true, msg : "Blog deleted"})
@@ -147,11 +148,12 @@ const UpdateBlog = async function(req,res){
 const deletequery = async function(req,res){
     try{
     const data =req.query
+    let datetime = new Date()
     if(Object.keys(data).length==0) return res.status(400).send({status : false, msg : "Please enter any key"})
-    if(req.query.authorId) return res.status(403).send({status: false, msg : "You can't delete any other author Id / (if you want to delete your blog, You don't need to enter It)"})
+    if(req.query.authorId) return res.status(403).send({status: false, msg : "You can't delete any other author's blog / (if you want to delete your blog, You don't need to enter It)"})
     const finalData = await blogModel.updateMany(
         { authorId : req.author_Id, isDeleted : false , ...data},
-        {$set : {isDeleted : true}},
+        {$set : {isDeleted : true, deletedAt : datetime}},
         {new : true}
         )
         if(finalData.modifiedCount == 0) return res.status(404).send({status : false, msg : 'No such blog available'})
