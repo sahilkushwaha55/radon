@@ -4,7 +4,8 @@ const ObjectId = mongoose.Schema.Types.ObjectId
 const blogSchema = new mongoose.Schema({
     title : {
         type : String,
-        required : true
+        required : true,
+        trim : true
     },
     body : {
         type : String,
@@ -15,12 +16,19 @@ const blogSchema = new mongoose.Schema({
         ref : 'author',
         required : true
     },
-    tags : [String],
+    tags : {
+        type : [String],
+        trim : true
+    },
     category : {
         type : [String],
-        required : true
+        required : true,
+        trim : true
     },
-    subcategory : [String],
+    subcategory : {
+        type : [String],
+        trim : true
+    },
     deletedAt : Date,
     isDeleted : {
         type : Boolean,

@@ -51,17 +51,10 @@ const authorCreate = async function(req,res){
     if(title.indexOf(req.body.title)== -1) return res.status(400).send({status : false, msg : "Please enter title [Mr, Mrs or Miss]"})
     if(!isValid(email)) return res.status(400).send({status : false, msg : "Email Id Required"})
     if(!isValid(pass)) return res.status(400).send({status : false, msg : "Please enter a Password"})
-    // const email = req.body.email
-    // let pass = req.body.password
-    // let title = ['Mr','Mrs','Miss']
+    
     validatepassword(pass)
     validateName(req.body.fname)
     validateName(req.body.lname)
-    // if(!isValid(fname)) return res.status(400).send({status : false, msg : "Please enter First Name"})
-    // if(!isValid(lname)) return res.status(400).send({status : false, msg : "Please enter Last Name"})
-    // if(title.indexOf(req.body.title)== -1) return res.status(400).send({status : false, msg : "Please enter title [Mr, Mrs or Miss]"})
-    // if(!isValid(email)) return res.status(400).send({status : false, msg : "Email Id Required"})
-    //if(!isValid(pass2)) return res.status(400).send({status : false, msg : "Please enter a Password"})
 
     // A Function with regex to valid that email have in the right formate
     function validateEmail(email1) 
@@ -76,7 +69,7 @@ const authorCreate = async function(req,res){
     const checkemail2 = await authorModel.find({email : email})  // Checking email is new or has already register with any author
     if(checkemail2.length!=0) return res.status(400).send({status : false, msg: "Already have an account with this email Id"})
     const saveData = await authorModel.create(bodyData)
-    res.status(201).send({status : true, msg : saveData})
+    res.status(201).send({status : true, data : saveData})
     }
     catch(err){
         res.status(500).send({status : false, msg : err.message})
@@ -100,7 +93,8 @@ const authorLogin = async function(req,res){
         author_Id : findAuthor._id.toString(),
         author_email : findAuthor.email
     }, "this is my secret key")
-    res.status(200).send({status : true, msg : token})
+    res.setHeader("x-api-key",token)
+    res.status(200).send({status : true, data : {token : token}});
 }
     catch(err){
         res.status(500).send({status : false, msg : err.message})

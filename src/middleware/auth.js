@@ -21,7 +21,7 @@ const authenicate = async function(req,res,next){
 
     let decodeToken = jwt.verify(token, "this is my secret key")
     if(!decodeToken) return res.status(403).send({status : false,  msg: "Token is invalid"})
-    req.author_Id=decodeToken.author_Id
+    req.decodeToken=decodeToken  //taking author Id from the token and store it into author_id key to use further in the code
     next()
     }
     catch(err){
@@ -39,10 +39,10 @@ const authorisation = async function(req,res,next){
         let check = isValidObjectId(blogId)
         if(!check) return res.status(404).send({status: false, msg : "Not a valid blog Id"})
         let blogDetail =await blogModel.findById(blogId)
-        if(!blogDetail) return res.status(400).send({staus : false, msg : "No such blog"})
+        if(!blogDetail) return res.status(404).send({staus : false, msg : "No such blog"})
         // let decodeToken = jwt.verify(token,"this is my secret key")
 
-        if(blogDetail.authorId != req.author_Id) 
+        if(blogDetail.authorId != req.decodeToken.author_Id) 
         return res.status(403).send({status : false, msg : "You are not authorised"})
         next()
     }
