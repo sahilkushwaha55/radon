@@ -131,7 +131,6 @@ const UpdateBlog = async function(req,res){
     if(updateData.isDeleted == true) return res.status(404).send({status : false, msg : "blog doesn't exist"})
     if(tags) updateData.tags.push(tags)
     if(subcategory) updateData.subcategory.push(subcategory)
-    console.log(typeof isPublished)
     if(typeof isPublished == 'boolean'){
         const updateData2 = await blogModel.findOneAndUpdate(
             {_id : blogId},
