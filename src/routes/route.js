@@ -97,7 +97,9 @@ router.get('/GET/films',function(req, res){
 })
 
 
-
+router.get('/testing/purpose',function(req,res){
+    console.log('show this things')
+})
 
 
 router.get('/GET/films/:filmId',function(req, res){
