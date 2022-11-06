@@ -49,13 +49,13 @@ router.get('/candidate/:name', function (req, res) {
 router.get('/candidate', function(req, res){
     console.log('Query parameters for this request are '+ JSON.stringify(req.query))
     let gender = req.query.gender
-    let state = req.query.state
-    let district = req.query.district
-    console.log('State is '+ state)
-    console.log('Gender is '+gender)
-    console.log('District is '+district)
-    let candidate = ['Akash','Saloni','Sagar']
-    res.send(candidate)
+    let state = req.query.state;
+    let district = req.query.district;
+    console.log('State is '+ state);
+    console.log('Gender is '+gender);
+    console.log('District is '+district);
+    let candidate = ['Akash','Saloni','Sagar'];
+    res.send(candidate);
 })
 
 
